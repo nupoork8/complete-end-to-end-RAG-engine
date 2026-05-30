@@ -18,7 +18,7 @@ app = FastAPI(title="Complete End-to-End RAG Engine")
 
 # 3. Spin Up Data Store Layer
 print("Building Local Vector Memory Store...")
-knowledge_base = (
+knowledge_base = os.getenv("KNOWLEDGE_BASE", 
     "The primary tech stack for modern GenAI engineering focuses heavily on Python. "
     "FastAPI is utilized to build lightning-fast web endpoints, while ChromaDB serves "
     "as the core vector store for handling semantic search operations."
