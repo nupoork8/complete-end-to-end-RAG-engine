@@ -3,8 +3,6 @@
 A production-ready, asynchronous backend microservice engineered in Python using FastAPI. This engine is architected to handle unstructured data ingestion, localized semantic vector space persistence, and defensive client-side request validation.
 
 ---
-<img width="1553" height="843" alt="image" src="https://github.com/user-attachments/assets/001407d1-300d-4ee8-9702-786884496088" />
-<img width="1534" height="849" alt="image" src="https://github.com/user-attachments/assets/4015667b-376d-4ee0-8758-315af2bdc55b" />
 
 
 ## 🏗️ System Architecture
