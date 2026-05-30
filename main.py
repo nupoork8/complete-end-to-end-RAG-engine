@@ -95,3 +95,7 @@ def generate_rag_response(payload: ChatRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Pipeline breakdown: {str(e)}"
         )
+   
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "engine": "RAG-Pipeline-v1"}    
