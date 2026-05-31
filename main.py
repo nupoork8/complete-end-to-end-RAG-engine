@@ -35,8 +35,8 @@ gemini_key = os.getenv("GEMINI_API_KEY")
 
 if gemini_key:
     from langchain_google_genai import ChatGoogleGenerativeAI
-    # Swapped to gemini-3.5-flash because 1.5 is officially deprecated by Google
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, google_api_key=gemini_key)
+
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, google_api_key=gemini_key)
     print("Live Gemini API Gateway connected successfully!")
 else:
     # Manual backup slot
