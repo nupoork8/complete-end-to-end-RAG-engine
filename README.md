@@ -1,66 +1,130 @@
-# Complete End-to-End Async RAG Orchestration Engine
+# Complete End-to-End RAG Engine
 
-A production-ready, asynchronous backend microservice engineered in Python using FastAPI. This engine is architected to handle unstructured data ingestion, localized semantic vector space persistence, and defensive client-side request validation.
+A learning project an async RAG pipeline built with FastAPI, ChromaDB, and Google Gemini.
 
----
-
-
-## 🏗️ System Architecture
-
-The microservice utilizes a decoupled, 4-layer architecture designed to maximize server throughput and enforce strict data isolation:
-
-1. **API / Transport Layer (FastAPI & Uvicorn):** Manages high-concurrency client connections completely asynchronously, preventing thread blocks during upstream network I/O latency.
-2. **Data Firewall Layer (Pydantic v2):** Intercepts incoming payloads at the root gateway to perform type-checking and validation, filtering out malformed requests before database processing.
-3. **Vector Retrieval Layer (ChromaDB):** Manages localized vector space database persistence, text chunk embeddings, and low-latency semantic context lookups.
-4. **Upstream Orchestration Layer (Google Gemini API):** Executes synthesized context injections wrapped inside strict system instructions to guarantee accurate processing and prevent hallucinations.
+Ask it a question, it retrieves relevant context from a vector store and generates a grounded answer using only that context no hallucinated facts.
 
 ---
 
-## 🛠️ Defensive Engineering Highlights
+## How It Works
 
-- **Asynchronous Task Architecture:** Implemented full `async/await` handling across network bounds to optimize token-processing workflows.
-- **Environment Isolation Baseline:** Configured runtime security using `os.getenv` to securely pull upstream API credentials directly from system RAM, preventing hardcoded leaks in public source control.
-- **Resilient Network Handling:** Overcame local operating system socket blocks (`WinError`) during continuous local server restarts by binding custom, non-conflicting port parameters.
+1. Incoming requests are validated by **Pydantic v2** before touching any logic
+2. The query is matched against text chunks stored in **ChromaDB** using semantic similarity
+3. Matching context is injected into a structured **Gemini** prompt
+4. A grounded answer is returned — the model is instructed to stay within the provided context
+
+```
+User Question
+     │
+     ▼
+[Pydantic Validation] ──✗──▶ 422 Error (malformed request)
+     │
+     ▼
+[ChromaDB Similarity Search]
+     │
+     ▼
+[Gemini Prompt + Context]
+     │
+     ▼
+Grounded Answer
+```
 
 ---
 
+## Stack
 
-## 🚀 Quickstart Guide
+| Layer | Technology |
+|---|---|
+| API & routing | FastAPI + Uvicorn |
+| Request validation | Pydantic v2 |
+| Vector store | ChromaDB |
+| Embeddings | LangChain (DeterministicFakeEmbedding) |
+| LLM | Google Gemini via LangChain |
+| Config | python-dotenv |
+
+---
+
+## Quickstart
 
 ### Prerequisites
 
-- Python 3.10 or higher
-- A valid Gemini API Key from [Google AI Studio](https://aistudio.google.com/)
+- Python 3.10+
+- A Gemini API key from [Google AI Studio](https://aistudio.google.com/)
 
-### 1. Clone & Setup Environment
+### 1. Clone the repo
 
 ```bash
 git clone https://github.com/nupoork8/complete-end-to-end-RAG-engine.git
 cd complete-end-to-end-RAG-engine
 ```
 
-### 2. Install Dependencies
-
-Run the unified package installer to configure your environment:
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set Up API Credentials
+### 3. Add your API key
 
 Create a `.env` file in the root directory:
 
 ```env
-GEMINI_API_KEY=your_secret_gemini_api_key_here
+GEMINI_API_KEY=your_key_here
 ```
 
-### 4. Boot the Microservice Server
-
-Launch the asynchronous Uvicorn server bound to port 8080:
+### 4. Run the server
 
 ```bash
 uvicorn main:app --reload --port 8080
 ```
 
-Once initialized, navigate to `http://127.0.0.1:8080/docs` in your browser to access the automated, interactive Swagger API documentation panel.
+Visit `http://127.0.0.1:8080/docs` for the interactive Swagger UI.
+
+---
+
+## API
+
+### `POST /api/v1/chat`
+
+```json
+{
+  "question": "What is RAG used for?"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "engine": "RAG-Pipeline-v1",
+  "user_question": "What is RAG used for?",
+  "retrieved_context": "...",
+  "llm_generated_answer": "..."
+}
+```
+
+### `GET /health`
+
+```json
+{ "status": "ok", "engine": "RAG-Pipeline-v1" }
+```
+
+---
+
+## Known Limitations
+
+This was a learning project, not a production system. Known issues I'd fix in a v2:
+
+- **In-memory vector store** — ChromaDB resets on every server restart. A persistent client (`chromadb.PersistentClient`) would fix this.
+- **Fake embeddings** — uses `DeterministicFakeEmbedding` instead of a real model. Swap for `text-embedding-3-small` or a sentence-transformers model for actual semantic search.
+- **Single document source** — knowledge base is hardcoded. A real system would ingest documents dynamically via an upload endpoint.
+- **No authentication** — the API is open. Would add API key middleware before exposing publicly.
+
+---
+
+## What I Learned
+
+- How RAG actually works end-to-end, not just conceptually
+- Why input validation at the API boundary matters (Pydantic stops bad data before it reaches the DB)
+- The difference between a working prototype and a production-ready system
