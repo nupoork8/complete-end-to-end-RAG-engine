@@ -44,7 +44,7 @@ else:
     
     if manual_key and manual_key != "PASTE_YOUR_AIZA_KEY_HERE":
         from langchain_google_genai import ChatGoogleGenerativeAI
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0, google_api_key=manual_key)
+        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, google_api_key=manual_key)
         print("Live Gemini API Gateway connected via manual key entry!")
     else:
         from langchain_core.language_models import FakeListChatModel
